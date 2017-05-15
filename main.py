@@ -125,7 +125,6 @@ with open('newData.csv', 'r', encoding='ISO-8859-9') as f:
 
         processedTweet = processTweet(tweet)
         featureVector = getFeatureVector(processedTweet, stopWords)
-        featureVectorForBigram = []
 
         featureList.extend(featureVector)
         tweets.append((featureVector, sentiment))
@@ -185,7 +184,7 @@ print("Logistic Regression Accuracy Percent : ",
 # Naive Bayes
 NBClassifier = nltk.NaiveBayesClassifier.train(training_set)
 print("Naive Bayes accuracy percent: ", (nltk.classify.accuracy(NBClassifier, testing_set)) * 100)
-
+print(NBClassifier.most_informative_features())
 # save_classifier = open("data/pickled_algos/NaiveBayesClassifier.pickle", "wb")
 # pickle.dump(NBClassifier, save_classifier)
 # save_classifier.close()
