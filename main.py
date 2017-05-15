@@ -131,7 +131,7 @@ with open('newData.csv', 'r', encoding='ISO-8859-9') as f:
         tweets.append((featureVector, sentiment))
 
 length = int(len(tweets) * 0.90)
-random.shuffle(tweets)
+# random.shuffle(tweets)
 
 training_tweets = tweets[:length]  # 90% to train
 testing_tweets = tweets[length:]  # 10% to learn
@@ -155,7 +155,24 @@ LogisticRegression_classifier.train(training_set)
 # Test the Logistic Regression classifier with one tweet
 testTweet = 'çekilmez bir adam oldum'
 processedTestTweet = processTweet(testTweet)
-print(testTweet + " ; ", (LogisticRegression_classifier.classify(extract_features(getFeatureVector(processedTestTweet,stopWords)))))
+print(testTweet + " ; ", (LogisticRegression_classifier.classify(extract_features(getFeatureVector(processedTestTweet, stopWords)))))
+
+# test the classifier with tweets from the txt file
+with open('testTweets.txt', encoding='ISO-8859-9') as f:
+    data = f.readlines()
+#
+for counter in range(0, len(data)):
+     a = data[counter]
+     testTweet = ''.join(a)
+     processedTestTweet = processTweet(testTweet)
+     actualResult = LogisticRegression_classifier.classify(extract_features(getFeatureVector(processedTestTweet, stopWords)))
+     with open('testResults.csv', 'a', encoding='ISO-8859-9')as csv_file:
+         writer = csv.writer(csv_file, delimiter=';')
+
+         writer.writerow([testTweet, actualResult])
+
+
+
 
 # save_classifier = open("data/pickled_algos/LogisticRegressionclassifier.pickle", "wb")
 # pickle.dump(LogisticRegression_classifier, save_classifier)
@@ -262,7 +279,6 @@ print("Random Forest accuracy percent: ", (nltk.classify.accuracy(RandomForest_C
 
 
 
-
 # Print all wrongly estimated tweets for Logistic Regression
 # for counter in range(0,len(testing_tweets)):
 #     a=testing_tweets[counter][0]
@@ -271,19 +287,4 @@ print("Random Forest accuracy percent: ", (nltk.classify.accuracy(RandomForest_C
 #     processedTestTweet = processTweet(testTweet)
 #     actualResult = LogisticRegression_classifier.classify(extract_features(getFeatureVector
 
-
-
-# test the classifier with tweets from the txt file
-# with open("data/resultYeni.txt") as f:
-#   data = f.readlines()
-#
-# for counter in range(0,len(data)):
-#     a=data[counter].decode('utf-8')
-#     testTweet = ''.join(a)
-#     processedTestTweet = processTweet(testTweet)
-#     actualResult = LogisticRegression_classifier.classify(extract_features(getFeatureVector(processedTestTweet,stopWords)))
-#     with open("labelledbyMachine.csv", "ab")as csv_file:
-#         writer = csv.writer(csv_file, delimiter=';')
-#         a = testTweet.encode('utf-8'), actualResult.encode('utf-8')
-#         writer.writerow(a)
 
