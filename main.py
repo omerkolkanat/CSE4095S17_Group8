@@ -153,9 +153,9 @@ LogisticRegression_classifier.train(training_set)
 
 
 # Test the Logistic Regression classifier with one tweet
-testTweet = 'çekilmez bir adam oldum'
-processedTestTweet = processTweet(testTweet)
-print(testTweet + " ; ", (LogisticRegression_classifier.classify(extract_features(getFeatureVector(processedTestTweet, stopWords)))))
+# testTweet = 'çekilmez bir adam oldum'
+# processedTestTweet = processTweet(testTweet)
+# print(testTweet + " ; ", (LogisticRegression_classifier.classify(extract_features(getFeatureVector(processedTestTweet, stopWords)))))
 
 # test the classifier with tweets from the txt file
 with open('testTweets.txt', encoding='ISO-8859-9') as f:
