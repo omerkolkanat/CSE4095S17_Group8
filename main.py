@@ -4,8 +4,15 @@ import io
 import pickle
 import re
 import nltk
+import random
 from nltk.classify.scikitlearn import SklearnClassifier
 from sklearn.linear_model import LogisticRegression
+from sklearn.naive_bayes import BernoulliNB
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.svm import LinearSVC
+from sklearn.linear_model import SGDClassifier
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier
 
 
 def processTweet(tweet):
@@ -101,56 +108,34 @@ def extract_features(tweet):
     return features
 
 
-# Read the tweets one by one and process it
-inpTweets = csv.reader(open('data/newData.csv', 'rb'), delimiter=';')
-stopWords = getStopWordList('data/stopWords.txt')
+stopWords = getStopWordList('stopWords.txt')
 
 featureList = []
 tweets = []
 tempList = []
 count = 0
 
-for row in inpTweets:
-    tweet = row[0].decode('ISO-8859-9')  # tweet from csv file
-    sentiment = row[1].decode('ISO-8859-9')  # sentiment of tweet from csv file
+with open('newData.csv', 'r', encoding='ISO-8859-9') as f:
 
-    processedTweet = processTweet(tweet)
-    featureVector = getFeatureVector(processedTweet, stopWords)
-    featureVectorForBigram = []
+    # Read the tweets one by one and process it
+    reader = csv.reader(f, delimiter=';')
+    for row in reader:
+        tweet = row[0]  # tweet from csv file
+        sentiment = row[1]  # sentiment of tweet from csv file
 
-    # convert to bigram
-    # tweetToBigram = ' '.join(featureVector)
-    # templist.append(tweetToBigram)
-    # bigrams = ngrams(tweetToBigram.split(),2)
-    # trigrams = ngrams(tweetToBigram.split(),3)
-    # for grams in bigrams:
-    #     doString = ' '.join((grams[0],grams[1]))
-    #     featureVectorForBigram.append((doString))
-    # doString =' '.join((grams[1],grams[0]))
-    # featureVectorForBigram.append((doString))
+        processedTweet = processTweet(tweet)
+        featureVector = getFeatureVector(processedTweet, stopWords)
+        featureVectorForBigram = []
 
-    # for grams in trigrams:
-    #     doString = ' '.join((grams[0],grams[2]))
-    #     featureVectorForBigram.append((doString))
-    # doString = ' '.join((grams[2],grams[0]))
-    # featureVectorForBigram.append(doString)
-
-    # while converting to bigram change featureVector to featureVectorForBigram
-
-    featureList.extend(featureVector)
-    tweets.append((featureVector, sentiment))
-
-# CountVectorizer codes
-# vectorizer = CountVectorizer(analyzer='word', ngram_range=(1, 2))
-# x = vectorizer.fit_transform(templist)
-# newFeatures = vectorizer.get_feature_names()
-# to shuffle tweets
-# random.shuffle(tweets)
+        featureList.extend(featureVector)
+        tweets.append((featureVector, sentiment))
 
 length = int(len(tweets) * 0.90)
+random.shuffle(tweets)
 
 training_tweets = tweets[:length]  # 90% to train
 testing_tweets = tweets[length:]  # 10% to learn
+
 del tweets
 
 # Remove featureList duplicates
@@ -160,15 +145,90 @@ featureList = list(set(featureList))
 training_set = nltk.classify.util.apply_features(extract_features, training_tweets)
 testing_set = nltk.classify.util.apply_features(extract_features, testing_tweets)
 
+
+
 # Logistic Regression
 LogisticRegression_classifier = SklearnClassifier(LogisticRegression())
 LogisticRegression_classifier.train(training_set)
+
+
+# Test the Logistic Regression classifier with one tweet
+testTweet = 'çekilmez bir adam oldum'
+processedTestTweet = processTweet(testTweet)
+print(testTweet + " ; ", (LogisticRegression_classifier.classify(extract_features(getFeatureVector(processedTestTweet,stopWords)))))
 
 # save_classifier = open("data/pickled_algos/LogisticRegressionclassifier.pickle", "wb")
 # pickle.dump(LogisticRegression_classifier, save_classifier)
 # save_classifier.close()
 
-print ("Logistic Regression Accuracy Percent : ", (nltk.classify.accuracy(LogisticRegression_classifier, testing_set)) * 100)
+print("Logistic Regression Accuracy Percent : ",
+      (nltk.classify.accuracy(LogisticRegression_classifier, testing_set)) * 100)
+
+
+# Naive Bayes
+NBClassifier = nltk.NaiveBayesClassifier.train(training_set)
+print("Naive Bayes accuracy percent: ", (nltk.classify.accuracy(NBClassifier, testing_set)) * 100)
+
+# save_classifier = open("data/pickled_algos/NaiveBayesClassifier.pickle", "wb")
+# pickle.dump(NBClassifier, save_classifier)
+# save_classifier.close()
+
+
+
+# Multinomial Naive Bayes
+MNB_classifier = SklearnClassifier(MultinomialNB())
+MNB_classifier.train(training_set)
+print("Multinomial Naive Bayes accuracy percent: ", (nltk.classify.accuracy(MNB_classifier, testing_set)) * 100)
+
+# save_classifier = open("data/pickled_algos/MNBclassifier.pickle","wb")
+# pickle.dump(MNB_classifier, save_classifier)
+# save_classifier.close()
+
+# Bernoulli Naive Bayes
+BernoulliNB_classifier = SklearnClassifier(BernoulliNB())
+BernoulliNB_classifier.train(training_set)
+print("BernoulliNB accuracy percent: ", (nltk.classify.accuracy(BernoulliNB_classifier, testing_set)) * 100)
+
+# save_classifier = open("data/pickled_algos/BernoulliNBclassifier.pickle","wb")
+# pickle.dump(BernoulliNB_classifier, save_classifier)
+# save_classifier.close()
+
+
+# LinearSVC classifier
+LinearSVC_classifier = SklearnClassifier(LinearSVC())
+LinearSVC_classifier.train(training_set)
+print("Linear SVC accuracy percent: ", (nltk.classify.accuracy(LinearSVC_classifier, testing_set)) * 100)
+
+# save_classifier = open("data/pickled_algos/LinearSVCclassifier.pickle", "wb")
+# pickle.dump(LinearSVC_classifier, save_classifier)
+# save_classifier.close()
+
+
+# SGDC classifier
+SGDC_classifier = SklearnClassifier(SGDClassifier())
+SGDC_classifier.train(training_set)
+print("Stochastic Gradient Descent Classifier(SGDC) accuracy percent: ", (nltk.classify.accuracy(SGDC_classifier, testing_set)) * 100)
+
+# save_classifier = open("data/pickled_algos/SGDC_classifier.pickle", "wb")
+# pickle.dump(SGDC_classifier, save_classifier)
+# save_classifier.close()
+
+
+# DecisionTree classifier
+DecisionTree_Classifier = SklearnClassifier(DecisionTreeClassifier())
+DecisionTree_Classifier.train(training_set)
+print("Decision Tree accuracy percent: ", (nltk.classify.accuracy(DecisionTree_Classifier, testing_set)) * 100)
+
+# save_classifier = open("data/pickled_algos/DecisionTree_Classifier.pickle", "wb")
+# pickle.dump(DecisionTree_Classifier, save_classifier)
+# save_classifier.close()
+
+# RandomForest Classifier
+RandomForest_Classifier = SklearnClassifier(RandomForestClassifier())
+RandomForest_Classifier.train(training_set)
+print("Random Forest accuracy percent: ", (nltk.classify.accuracy(RandomForest_Classifier, testing_set)) * 100)
+
+
 
 # # Write wrong tweets with keywords
 # for counter in range(0, len(testing_tweets)):
@@ -200,48 +260,6 @@ print ("Logistic Regression Accuracy Percent : ", (nltk.classify.accuracy(Logist
 #     ratio = mostList2[counter][3]
 #     mostList.append((contains, isContain, sent, ratio))
 
-# Test the classifier
-# testTweet = ''
-# processedTestTweet = processTweet(testTweet)
-# print testTweet
-# print NBClassifier.classify(extract_features(getFeatureVector(processedTestTweet,stopWords)))
-
-# print("Original Naive Bayes Algorithm Accuracy Percent:",(nltk.classify.accuracy(NBClassifier,testing_set))*100)
-#
-# save_classifier = open("data/pickled_algos/originalNaiveBayes.pickle","wb")
-# pickle.dump(NBClassifier,save_classifier)
-# save_classifier.close()
-
-
-# Multinomial Naive Bayes
-# MNB_classifier = SklearnClassifier(MultinomialNB())
-# MNB_classifier.train(training_set)
-# print ("MNB_classifier accuracy percent: ", (nltk.classify.accuracy(MNB_classifier, testing_set)) * 100)
-#
-# save_classifier = open("data/pickled_algos/MNBclassifier.pickle","wb")
-# pickle.dump(MNB_classifier, save_classifier)
-# save_classifier.close()
-
-
-# Bernoulli Naive Bayes
-# BernoulliNB_classifier = SklearnClassifier(BernoulliNB())
-# BernoulliNB_classifier.train(training_set)
-# print ("BernoulliNB accuracy percent: ", (nltk.classify.accuracy(BernoulliNB_classifier, testing_set)) * 100)
-#
-# save_classifier = open("data/pickled_algos/BernoulliNBclassifier.pickle","wb")
-# pickle.dump(BernoulliNB_classifier, save_classifier)
-# save_classifier.close()
-
-# Bernoulli RBM
-# model = BernoulliRBM()
-# model.fit_transform(training_set).toarray()
-
-
-
-# count_vect = CountVectorizer()
-# X_train_counts= count_vect.fit_transform(featureList)
-# model = BernoulliRBM()
-# model.fit(X_train_counts)
 
 
 
@@ -252,7 +270,6 @@ print ("Logistic Regression Accuracy Percent : ", (nltk.classify.accuracy(Logist
 #     testTweet = ' '.join(a)
 #     processedTestTweet = processTweet(testTweet)
 #     actualResult = LogisticRegression_classifier.classify(extract_features(getFeatureVector
-
 
 
 
@@ -270,39 +287,3 @@ print ("Logistic Regression Accuracy Percent : ", (nltk.classify.accuracy(Logist
 #         a = testTweet.encode('utf-8'), actualResult.encode('utf-8')
 #         writer.writerow(a)
 
-
-# Test the Logistic Regression classifier with one tweet
-# testTweet = 'ah bu hayat çekilmez'
-# processedTestTweet = processTweet(testTweet)
-# print testTweet
-# print LogisticRegression_classifier.classify(extract_features(getFeatureVector(processedTestTweet,stopWords)))
-
-
-# # LinearSVC classifier
-# LinearSVC_classifier = SklearnClassifier(LinearSVC())
-# LinearSVC_classifier.train(training_set)
-# print ("Linear SVC accuracy percent", (nltk.classify.accuracy(LinearSVC_classifier, testing_set)) * 100)
-#
-# save_classifier = open("data/pickled_algos/LinearSVCclassifier.pickle", "wb")
-# pickle.dump(LinearSVC_classifier, save_classifier)
-# save_classifier.close()
-
-
-# # SGDC classifier
-# SGDC_classifier = SklearnClassifier(SGDClassifier())
-# SGDC_classifier.train(training_set)
-# print ("SGDClassifier accuracy percent", (nltk.classify.accuracy(SGDC_classifier,testing_set))*100)
-#
-# save_classifier = open("data/pickled_algos/SGDC_classifier.pickle", "wb")
-# pickle.dump(SGDC_classifier, save_classifier)
-# save_classifier.close()
-
-
-# # DecisionTree classifier
-# DecisionTree_Classifier = SklearnClassifier(DecisionTreeClassifier())
-# DecisionTree_Classifier.train(training_set)
-# print ("DecisionTree accuracy percent", (nltk.classify.accuracy(DecisionTree_Classifier,testing_set))*100)
-#
-# save_classifier = open("data/pickled_algos/DecisionTree_Classifier.pickle", "wb")
-# pickle.dump(DecisionTree_Classifier, save_classifier)
-# save_classifier.close()
