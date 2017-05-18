@@ -13,6 +13,9 @@ from sklearn.svm import LinearSVC
 from sklearn.linear_model import SGDClassifier
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
+from sklearn import cross_validation
+import numpy as np
+
 
 
 def processTweet(tweet):
@@ -144,7 +147,15 @@ featureList = list(set(featureList))
 training_set = nltk.classify.util.apply_features(extract_features, training_tweets)
 testing_set = nltk.classify.util.apply_features(extract_features, testing_tweets)
 
-
+total = 0
+training_set1 = np.array(training_set)
+LogisticRegression_classifier = SklearnClassifier(LogisticRegression())
+cv = cross_validation.KFold(len(training_set1), n_folds=10, shuffle=True, random_state=None)
+for traincv, testcv in cv:
+    classifier = LogisticRegression_classifier.train(training_set1[traincv])
+    print(nltk.classify.util.accuracy(classifier, training_set1[testcv]))
+    total += nltk.classify.util.accuracy(classifier, training_set1[testcv])
+print("CV Logistic Regression Average : ", total/10)
 
 # Logistic Regression
 LogisticRegression_classifier = SklearnClassifier(LogisticRegression())
@@ -177,72 +188,79 @@ for counter in range(0, len(data)):
 # pickle.dump(LogisticRegression_classifier, save_classifier)
 # save_classifier.close()
 
-print("Logistic Regression Accuracy Percent : ",
-      (nltk.classify.accuracy(LogisticRegression_classifier, testing_set)) * 100)
+# print("Logistic Regression Accuracy Percent : ", (nltk.classify.accuracy(LogisticRegression_classifier, testing_set)) * 100)
 
 
-# Naive Bayes
-NBClassifier = nltk.NaiveBayesClassifier.train(training_set)
-print("Naive Bayes accuracy percent: ", (nltk.classify.accuracy(NBClassifier, testing_set)) * 100)
-print(NBClassifier.most_informative_features())
-# save_classifier = open("data/pickled_algos/NaiveBayesClassifier.pickle", "wb")
-# pickle.dump(NBClassifier, save_classifier)
-# save_classifier.close()
+total = 0
+NBClassifier = nltk.NaiveBayesClassifier
+cv = cross_validation.KFold(len(training_set1), n_folds=10, shuffle=True, random_state=None)
+for traincv, testcv in cv:
+    classifier = NBClassifier.train(training_set1[traincv])
+    print(nltk.classify.util.accuracy(classifier, training_set1[testcv]))
+    total += nltk.classify.util.accuracy(classifier, training_set1[testcv])
+print("CV Naive Bayes Average : ", total/10)
 
 
 
-# Multinomial Naive Bayes
+total = 0
 MNB_classifier = SklearnClassifier(MultinomialNB())
-MNB_classifier.train(training_set)
-print("Multinomial Naive Bayes accuracy percent: ", (nltk.classify.accuracy(MNB_classifier, testing_set)) * 100)
+cv = cross_validation.KFold(len(training_set1), n_folds=10, shuffle=True, random_state=None)
+for traincv, testcv in cv:
+    classifier = MNB_classifier.train(training_set1[traincv])
+    print(nltk.classify.util.accuracy(classifier, training_set1[testcv]))
+    total += nltk.classify.util.accuracy(classifier, training_set1[testcv])
+print("CV Multinomial Naive Bayes Average : ", total/10)
 
-# save_classifier = open("data/pickled_algos/MNBclassifier.pickle","wb")
-# pickle.dump(MNB_classifier, save_classifier)
-# save_classifier.close()
 
-# Bernoulli Naive Bayes
+total = 0
 BernoulliNB_classifier = SklearnClassifier(BernoulliNB())
-BernoulliNB_classifier.train(training_set)
-print("BernoulliNB accuracy percent: ", (nltk.classify.accuracy(BernoulliNB_classifier, testing_set)) * 100)
+cv = cross_validation.KFold(len(training_set1), n_folds=10, shuffle=True, random_state=None)
+for traincv, testcv in cv:
+    classifier = BernoulliNB_classifier.train(training_set1[traincv])
+    print(nltk.classify.util.accuracy(classifier, training_set1[testcv]))
+    total += nltk.classify.util.accuracy(classifier, training_set1[testcv])
+print("CV Bernoulli Naive Bayes Average : ", total/10)
 
-# save_classifier = open("data/pickled_algos/BernoulliNBclassifier.pickle","wb")
-# pickle.dump(BernoulliNB_classifier, save_classifier)
-# save_classifier.close()
 
-
-# LinearSVC classifier
+total = 0
 LinearSVC_classifier = SklearnClassifier(LinearSVC())
-LinearSVC_classifier.train(training_set)
-print("Linear SVC accuracy percent: ", (nltk.classify.accuracy(LinearSVC_classifier, testing_set)) * 100)
+cv = cross_validation.KFold(len(training_set1), n_folds=10, shuffle=True, random_state=None)
+for traincv, testcv in cv:
+    classifier = LinearSVC_classifier.train(training_set1[traincv])
+    print(nltk.classify.util.accuracy(classifier, training_set1[testcv]))
+    total += nltk.classify.util.accuracy(classifier, training_set1[testcv])
+print("CV Linear SVC Average : ", total/10)
 
-# save_classifier = open("data/pickled_algos/LinearSVCclassifier.pickle", "wb")
-# pickle.dump(LinearSVC_classifier, save_classifier)
-# save_classifier.close()
 
-
-# SGDC classifier
+total = 0
 SGDC_classifier = SklearnClassifier(SGDClassifier())
-SGDC_classifier.train(training_set)
-print("Stochastic Gradient Descent Classifier(SGDC) accuracy percent: ", (nltk.classify.accuracy(SGDC_classifier, testing_set)) * 100)
+cv = cross_validation.KFold(len(training_set1), n_folds=10, shuffle=True, random_state=None)
+for traincv, testcv in cv:
+    classifier = SGDC_classifier.train(training_set1[traincv])
+    print(nltk.classify.util.accuracy(classifier, training_set1[testcv]))
+    total += nltk.classify.util.accuracy(classifier, training_set1[testcv])
+print("CV SGDC Average : ", total/10)
 
-# save_classifier = open("data/pickled_algos/SGDC_classifier.pickle", "wb")
-# pickle.dump(SGDC_classifier, save_classifier)
-# save_classifier.close()
 
-
-# DecisionTree classifier
+total = 0
 DecisionTree_Classifier = SklearnClassifier(DecisionTreeClassifier())
-DecisionTree_Classifier.train(training_set)
-print("Decision Tree accuracy percent: ", (nltk.classify.accuracy(DecisionTree_Classifier, testing_set)) * 100)
+cv = cross_validation.KFold(len(training_set1), n_folds=10, shuffle=True, random_state=None)
+for traincv, testcv in cv:
+    classifier = DecisionTree_Classifier.train(training_set1[traincv])
+    print(nltk.classify.util.accuracy(classifier, training_set1[testcv]))
+    total += nltk.classify.util.accuracy(classifier, training_set1[testcv])
+print("CV Decision Tree Average : ", total/10)
 
-# save_classifier = open("data/pickled_algos/DecisionTree_Classifier.pickle", "wb")
-# pickle.dump(DecisionTree_Classifier, save_classifier)
-# save_classifier.close()
 
-# RandomForest Classifier
+total = 0
 RandomForest_Classifier = SklearnClassifier(RandomForestClassifier())
-RandomForest_Classifier.train(training_set)
-print("Random Forest accuracy percent: ", (nltk.classify.accuracy(RandomForest_Classifier, testing_set)) * 100)
+cv = cross_validation.KFold(len(training_set1), n_folds=10, shuffle=True, random_state=None)
+for traincv, testcv in cv:
+    classifier = RandomForest_Classifier.train(training_set1[traincv])
+    print(nltk.classify.util.accuracy(classifier, training_set1[testcv]))
+    total += nltk.classify.util.accuracy(classifier, training_set1[testcv])
+print("CV Random Forest Average : ", total/10)
+
 
 
 
