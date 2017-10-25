@@ -1,2 +1,4 @@
-# CSE4095S17_Group8
-Twitter Sentiment Analysis
+# Twitter Sentiment Analysis
+
+- Data collection using Twitter API
+- Developed Sentiment Analysis Project using Python
